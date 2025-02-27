@@ -1,3 +1,6 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
 import {
   Card,
   CardHeader,
@@ -12,6 +15,12 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import { RecipeCardProps } from 'src/types/generalTypes';
 
 const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
+  const router = useRouter();
+
+  const handleLearnMore = () => {
+    router.push(`/recipes/${recipe.idMeal}`);
+  };
+
   return (
     <Card sx={{ maxWidth: 345, width: '100%' }} key={recipe.idMeal}>
       <CardHeader title={recipe.strMeal} subheader={recipe.strCategory} />
@@ -23,7 +32,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         <IconButton aria-label="add to favorites">
           <FavoriteIcon />
         </IconButton>
-        <Button size="small">Learn More</Button>
+        <Button size="small" onClick={handleLearnMore}>
+          Learn More
+        </Button>
       </CardActions>
     </Card>
   );
