@@ -1,48 +1,84 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRecipes } from '@/hooks/useRecipes';
-import Image from 'next/image';
+import { Container, TextField, Stack, Typography, Box } from '@mui/material';
+import CategoryFilter from '@/components/CategoryFilter';
+import RecipeCard from '@/components/RecipeCard';
+import Pagination from '@/components/Pagination';
+import { Recipe } from 'src/types/generalTypes';
 
 const RecipesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const { data, isLoading, isError, error } = useRecipes(searchQuery);
+  const [category, setCategory] = useState('');
+  const [page, setPage] = useState(1);
+  const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+  const { data, isLoading } = useRecipes(debouncedQuery);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const filteredData = data?.filter((recipe: Recipe) =>
+    category ? recipe.strCategory === category : true,
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [category, debouncedQuery]);
+
+  const recipesPerPage = 3;
+  const paginatedData = filteredData?.slice((page - 1) * recipesPerPage, page * recipesPerPage);
+  const totalPages = filteredData?.length ? Math.ceil(filteredData.length / recipesPerPage) : 0;
+
+  const handleCategoryChange = (category: string) => {
+    setCategory(category);
   };
 
-  if (isLoading) return <div>Loading recipes...</div>;
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+    }
+  };
 
-  if (isError) return <div>Error: {error?.message || 'Something went wrong'}</div>;
+  if (isLoading) return <div>Loading...</div>;
 
   return (
-    <div>
-      <input
-        type="text"
-        value={searchQuery}
-        onChange={handleSearchChange}
-        placeholder="Search for recipes"
-        className="search-input"
-      />
-      <div className="recipes-list">
-        {data?.length > 0 ? (
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          data.map((recipe: any) => (
-            <div key={recipe.idMeal} className="recipe-card">
-              <h3>{recipe.strMeal}</h3>
-              <Image src={recipe.strMealThumb} alt={recipe.strMeal} />
-              <p>{recipe.strCategory}</p>
-              <p>{recipe.strArea}</p>
-              <a href={`/recipes/${recipe.idMeal}`} className="view-details">
-                View Details
-              </a>
-            </div>
-          ))
-        ) : (
-          <div>No recipes found</div>
-        )}
-      </div>
-    </div>
+    <Box height={'100vh'} alignContent={'center'} gap={2}>
+      <Container>
+        <TextField
+          label="Search Recipes"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          fullWidth
+          margin="normal"
+        />
+        <CategoryFilter category={category} onCategoryChange={handleCategoryChange} />
+      </Container>
+
+      <Container>
+        <Stack direction="row" flexWrap="wrap" gap={'5.07%'} mb={4}>
+          {paginatedData && paginatedData.length > 0 ? (
+            paginatedData.map((recipe: Recipe) => (
+              <RecipeCard key={recipe.idMeal} recipe={recipe} />
+            ))
+          ) : (
+            <Typography variant="h6" sx={{ textAlign: 'center', width: '100%', mt: 4 }}>
+              No recipes found
+            </Typography>
+          )}
+        </Stack>
+      </Container>
+
+      {filteredData && filteredData.length > 0 && (
+        <Container>
+          <Pagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange} />
+        </Container>
+      )}
+    </Box>
   );
 };
 

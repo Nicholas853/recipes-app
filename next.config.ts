@@ -11,4 +11,10 @@ const nextConfig: NextConfig = {
   },
 };
 
+module.exports = {
+  images: {
+    domains: ['www.themealdb.com'],
+  },
+};
+
 export default nextConfig;
