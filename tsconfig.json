@@ -24,6 +24,7 @@
       "@/components/*": ["./src/components/*"],
       "@/lib/*": ["./src/lib/*"],
       "@/styles/*": ["./src/styles/*"],
+      "@/hooks/*": ["./src/hooks/*"],
       "@/theme": ["src/theme.tsx"]
     }
   },
