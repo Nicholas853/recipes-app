@@ -1,4 +1,4 @@
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material';
 
 interface CategoryFilterProps {
   category: string;
@@ -26,8 +26,13 @@ const CategoryFilter = ({ category, onCategoryChange }: CategoryFilterProps) => 
 
   return (
     <FormControl fullWidth margin="normal">
-      <InputLabel>Category</InputLabel>
-      <Select value={category} onChange={(e) => onCategoryChange(e.target.value)}>
+      <InputLabel id="category-label">Category</InputLabel>
+      <Select
+        value={category}
+        onChange={(e) => onCategoryChange(e.target.value)}
+        labelId="category-label"
+        id="category"
+        input={<OutlinedInput label="Category" />}>
         {categories.map((cat) => (
           <MenuItem key={cat} value={cat === 'All Categories' ? '' : cat}>
             {cat}
