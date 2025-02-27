@@ -1,17 +1,27 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import { useRecipes } from '@/hooks/useRecipes';
-import { Container, TextField, Stack, Typography, Box } from '@mui/material';
+import { Container, TextField, Stack, Typography, Box, Button } from '@mui/material';
 import CategoryFilter from '@/components/CategoryFilter';
 import RecipeCard from '@/components/RecipeCard';
 import Pagination from '@/components/Pagination';
 import { Recipe } from 'src/types/generalTypes';
+import { useRouter } from 'next/navigation';
 
 const RecipesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState('');
   const [page, setPage] = useState(1);
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
+  const router = useRouter();
+
+  const handleGoToMainPage = () => {
+    router.push('/');
+  };
+  const handleGoToFavorites = () => {
+    router.push('/favorites');
+  };
 
   const { data, isLoading } = useRecipes(debouncedQuery);
 
@@ -49,6 +59,16 @@ const RecipesPage = () => {
   return (
     <Box height={'100vh'} alignContent={'center'} gap={2}>
       <Container>
+        <Stack flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'}>
+          <Button variant="contained" onClick={handleGoToMainPage}>
+            Go to main page
+          </Button>
+          <Button variant="contained" onClick={handleGoToFavorites}>
+            Go to favorites
+          </Button>
+        </Stack>
+      </Container>
+      <Container>
         <TextField
           label="Search Recipes"
           value={searchQuery}
@@ -66,9 +86,19 @@ const RecipesPage = () => {
               <RecipeCard key={recipe.idMeal} recipe={recipe} />
             ))
           ) : (
-            <Typography variant="h6" sx={{ textAlign: 'center', width: '100%', mt: 4 }}>
-              No recipes found
-            </Typography>
+            <>
+              <Typography variant="h6" sx={{ textAlign: 'center', width: '100%', mt: 4 }}>
+                No recipes found
+              </Typography>
+              <Stack flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'}>
+                <Button variant="contained" onClick={handleGoToMainPage}>
+                  Go to main page
+                </Button>
+                <Button variant="contained" onClick={handleGoToFavorites}>
+                  Go to favorites
+                </Button>
+              </Stack>
+            </>
           )}
         </Stack>
       </Container>
